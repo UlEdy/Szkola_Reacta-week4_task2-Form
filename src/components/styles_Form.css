@@ -2,40 +2,66 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
+    background-color: wheat;
 }
 
 button {
     display: block;
     width: 100px;
     height: 50px;
-    margin: 5px 15px;
+    margin: 15px;
     background-color: #27ae60;
     border: none;
-    border-radius: 25px;
+    border-radius: 5px;
+}
+
+form {
+    margin-top: 20px;
+}
+
+.valueWrapper,
+input,
+textarea {
+    border-radius: 5px;
+    border: #ddb977 1px solid;
+}
+
+p {
+    margin: 2px;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.genderChoose {
+    align-items: center;
 }
 
 .formWrapper {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
     margin: 15px;
 }
 
-.message,
-.formWrapper > form {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+.message {
+    padding: 5px;
+    border: #27ae60 2px solid;
+    border-radius: 5px;
 }
 
-.message {
-    border: #27ae60 2px solid;
+.errorMessage {
+    margin: 5px 0 25px;
+    font-size: 0.75rem;
+    color: red;
 }
 
 .valueWrapper {
-    width: 5000px;
-    color: #27ae60;
+    width: 200px;
     padding: 10px;
+    font-size: 0.8rem;
+    color: #12301e;
+    background-color: #ddb977;
 }
 
 .valueWrapper > div {

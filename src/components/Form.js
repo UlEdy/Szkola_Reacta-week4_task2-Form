@@ -1,9 +1,8 @@
-/** @format */
-
 import { useState, useRef } from 'react';
 
 //components
 import Button from './Button';
+import ErrorMessage from './ErrorMessage';
 import SentMessage from './SentMessage';
 
 //styles
@@ -23,7 +22,7 @@ const Form = () => {
     const [name, handleChangeName] = useInput('');
     const [email, handleChangeEmail] = useInput('');
     const [bio, handleChangeBio] = useInput('');
-    const [gender, setGender] = useState(false);
+    const [gender, setGender] = useState('');
     const [regulations, setRegulations] = useState(false);
     const [sent, setSent] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -31,32 +30,20 @@ const Form = () => {
     const nameRef = useRef(null);
     const emailRef = useRef(null);
     const bioRef = useRef(null);
-    const genderRef = useRef(null);
+    const femaleRef = useRef(null);
+    const maleRef = useRef(null);
     const regRef = useRef(null);
+
+    const errorNameRef = useRef(null);
+    const errorEmailRef = useRef(null);
+    const errorBioRef = useRef(null);
+    const errorGenderRef = useRef(null);
+    const errorRegRef = useRef(null);
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@.]+$/;
 
     const handleSubmit = event => {
         event.preventDefault();
-
-        if (!nameRef.current.value.trim()) {
-            nameRef.current.style.border = '#f00 1px solid';
-        } else {
-            nameRef.current.style.border = 'green 1px solid';
-        }
-        if (
-            !emailRef.current.value.trim() ||
-            !emailPattern.test(emailRef.current.value)
-        ) {
-            emailRef.current.style.border = '#f00 1px solid';
-        } else {
-            emailRef.current.style.border = 'green 1px solid';
-        }
-        if (!bioRef.current.value.trim()) {
-            bioRef.current.style.border = '#f00 1px solid';
-        } else {
-            bioRef.current.style.border = 'green 1px solid';
-        }
 
         if (
             nameRef.current.value.trim() &&
@@ -68,18 +55,57 @@ const Form = () => {
         ) {
             setSent(true);
         } else {
-            return;
+            setSent(false);
         }
+
         if (sent === true) {
             handleChangeName({ target: { value: '' } });
             handleChangeEmail({ target: { value: '' } });
             handleChangeBio({ target: { value: '' } });
-            setGender(false);
+            setGender('');
             setRegulations(false);
             setIsSuccess(true);
             console.log('close', isSuccess);
         } else {
-            return;
+            if (!nameRef.current.value.trim()) {
+                nameRef.current.style.border = '#f00 1px solid';
+                errorNameRef.current.textContent = 'Field required!';
+            } else {
+                nameRef.current.style.border = 'green 1px solid';
+                errorNameRef.current.textContent = '';
+            }
+
+            if (
+                !emailRef.current.value.trim() ||
+                !emailPattern.test(emailRef.current.value)
+            ) {
+                emailRef.current.style.border = '#f00 1px solid';
+                errorEmailRef.current.textContent =
+                    'Field required! Or invalid email.';
+            } else {
+                emailRef.current.style.border = 'green 1px solid';
+                errorEmailRef.current.textContent = '';
+            }
+
+            if (!bioRef.current.value.trim()) {
+                bioRef.current.style.border = '#f00 1px solid';
+                errorBioRef.current.textContent = 'Field required!';
+            } else {
+                bioRef.current.style.border = 'green 1px solid';
+                errorBioRef.current.textContent = '';
+            }
+
+            if (!gender) {
+                errorGenderRef.current.textContent = 'Field required!';
+            } else {
+                errorGenderRef.current.textContent = '';
+            }
+
+            if (!regulations) {
+                errorRegRef.current.textContent = 'Field required!';
+            } else {
+                errorRegRef.current.textContent = '';
+            }
         }
     };
 
@@ -90,7 +116,7 @@ const Form = () => {
     };
 
     return (
-        <div className='formWrapper'>
+        <div className='formWrapper flex'>
             <div className='valueWrapper'>
                 <div>Name: {name}</div>
                 <div>Email: {email}</div>
@@ -98,7 +124,7 @@ const Form = () => {
                 <div>Gender: {gender}</div>
                 <div>The Terms and Conditions: {regulations.toString()}</div>
             </div>
-            <form>
+            <form className='flex'>
                 <legend htmlFor='name'>Name:</legend>
                 <input
                     name='name'
@@ -109,6 +135,7 @@ const Form = () => {
                     ref={nameRef}
                     required
                 />
+                <ErrorMessage ref={errorNameRef} />
 
                 <legend htmlFor='email'>Email:</legend>
                 <input
@@ -119,68 +146,80 @@ const Form = () => {
                     onChange={handleChangeEmail}
                     ref={emailRef}
                     required
-                ></input>
+                />
+                <ErrorMessage ref={errorEmailRef} />
 
                 <legend htmlFor='bio'>Bio:</legend>
                 <textarea
                     name='bio'
                     placeholder='write some bio'
                     type='text'
+                    rows='5'
+                    cols='25'
                     value={bio}
                     onChange={handleChangeBio}
                     ref={bioRef}
                     required
                 ></textarea>
+                <ErrorMessage ref={errorBioRef} />
 
-                <div>
+                <div className='flex'>
                     <legend>Choose gender:</legend>
-                    <input
-                        type='radio'
-                        name='gender'
-                        value='male'
-                        checked={gender === 'male'}
-                        onChange={() => setGender('male')}
-                        ref={genderRef}
-                        required
-                    />
-                    <label htmlFor='male'>Male</label>
-                    <input
-                        type='radio'
-                        name='gender'
-                        value='female'
-                        id='female'
-                        checked={gender === 'female'}
-                        onChange={() => setGender('female')}
-                        ref={genderRef}
-                        required
-                    />
-                    <label htmlFor='female'>Female</label>
+                    <div className='genderChoose'>
+                        <input
+                            type='radio'
+                            name='gender'
+                            value='male'
+                            checked={gender === 'male'}
+                            onChange={() => setGender('male')}
+                            ref={maleRef}
+                            required
+                        />
+                        <label htmlFor='male'>Male</label>
+                    </div>
+
+                    <div className='genderChoose'>
+                        <input
+                            type='radio'
+                            name='gender'
+                            value='female'
+                            id='female'
+                            checked={gender === 'female'}
+                            onChange={() => setGender('female')}
+                            ref={femaleRef}
+                            required
+                        />
+                        <label htmlFor='female'>Female</label>
+                    </div>
+                    <ErrorMessage ref={errorGenderRef} />
                 </div>
-                <div>
-                    <input
-                        type='checkbox'
-                        value='accept'
-                        id='accept'
-                        checked={regulations}
-                        onChange={() => setRegulations(true)}
-                        ref={regRef}
-                        required
-                    />
-                    <label htmlFor='accept'>
-                        <a href='https://github.com/UlEdy'>
-                            the terms and conditions
-                        </a>
-                    </label>
+
+                <div className='flex'>
+                    <div>
+                        <input
+                            type='checkbox'
+                            value='accept'
+                            id='accept'
+                            checked={regulations}
+                            onChange={() => setRegulations(true)}
+                            ref={regRef}
+                            required
+                        />
+                        <label htmlFor='accept'>
+                            <a href='https://github.com/UlEdy'>
+                                The terms and conditions
+                            </a>
+                        </label>
+                    </div>
+                    <ErrorMessage ref={errorRegRef} />
                 </div>
                 <Button
                     label={'Send form'}
                     onClick={handleSubmit}
                     type={'submit'}
                 />
-                {isSuccess ? (
-                    <SentMessage handleClosing={handleClosing} />
-                ) : null}
             </form>
+            {isSuccess && <SentMessage handleClosing={handleClosing} />}
         </div>
     );
 };
