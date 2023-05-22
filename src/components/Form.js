@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 //components
 import Button from './Button';
@@ -8,24 +8,29 @@ import SentMessage from './SentMessage';
 //styles
 import './styles_Form.css';
 
-function useInput(initialValue = '') {
-    const [value, setValue] = useState('');
+const initialValues = {
+    name: '',
+    email: '',
+    bio: '',
+    gender: '',
+    regulations: false,
+};
 
-    const handleChange = event => {
-        setValue(event.target.value);
-    };
-
-    return [value, handleChange];
-}
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@.]+$/;
 
 const Form = () => {
-    const [name, handleChangeName] = useInput('');
-    const [email, handleChangeEmail] = useInput('');
-    const [bio, handleChangeBio] = useInput('');
-    const [gender, setGender] = useState('');
-    const [regulations, setRegulations] = useState(false);
+    const [formData, setFormData] = useState(initialValues);
+
+    const { name, email, bio, gender, regulations } = formData;
+
     const [sent, setSent] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
+    useEffect(() => {
+        if (sent) {
+            setIsSuccess(true);
+        }
+    }, [sent]);
 
     const nameRef = useRef(null);
     const emailRef = useRef(null);
@@ -40,32 +45,38 @@ const Form = () => {
     const errorGenderRef = useRef(null);
     const errorRegRef = useRef(null);
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@.]+$/;
+    const handleChange = event => {
+        const type = event.target.type;
+        const name = event.target.name;
+        const value =
+            type === 'checkbox' ? event.target.checked : event.target.value;
+
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            [name]: value,
+        }));
+    };
 
     const handleSubmit = event => {
         event.preventDefault();
 
-        if (
+        const isFilledInput =
             nameRef.current.value.trim() &&
             emailRef.current.value.trim() &&
             emailPattern.test(emailRef.current.value) &&
             bioRef.current.value.trim() &&
             !!gender &&
-            regulations
-        ) {
+            regulations;
+
+        if (isFilledInput) {
             setSent(true);
+            setFormData(initialValues);
         } else {
             setSent(false);
         }
 
-        if (sent === true) {
-            handleChangeName({ target: { value: '' } });
-            handleChangeEmail({ target: { value: '' } });
-            handleChangeBio({ target: { value: '' } });
-            setGender('');
-            setRegulations(false);
+        if (sent) {
             setIsSuccess(true);
-            console.log('close', isSuccess);
         } else {
             if (!nameRef.current.value.trim()) {
                 nameRef.current.style.border = '#f00 1px solid';
@@ -109,8 +120,7 @@ const Form = () => {
         }
     };
 
-    const handleClosing = () => {
-        console.log('close', isSuccess);
+    const handleClose = () => {
         setIsSuccess(false);
         setSent(false);
     };
@@ -131,7 +141,7 @@ const Form = () => {
                     placeholder='name'
                     type='text'
                     value={name}
-                    onChange={handleChangeName}
+                    onChange={handleChange}
                     ref={nameRef}
                     required
                 />
@@ -143,7 +153,7 @@ const Form = () => {
                     placeholder='email'
                     type='email'
                     value={email}
-                    onChange={handleChangeEmail}
+                    onChange={handleChange}
                     ref={emailRef}
                     required
                 />
@@ -157,7 +167,7 @@ const Form = () => {
                     rows='5'
                     cols='25'
                     value={bio}
-                    onChange={handleChangeBio}
+                    onChange={handleChange}
                     ref={bioRef}
                     required
                 ></textarea>
@@ -171,7 +181,7 @@ const Form = () => {
                             name='gender'
                             value='male'
                             checked={gender === 'male'}
-                            onChange={() => setGender('male')}
+                            onChange={handleChange}
                             ref={maleRef}
                             required
                         />
@@ -185,7 +195,7 @@ const Form = () => {
                             value='female'
                             id='female'
                             checked={gender === 'female'}
-                            onChange={() => setGender('female')}
+                            onChange={handleChange}
                             ref={femaleRef}
                             required
                         />
@@ -198,10 +208,11 @@ const Form = () => {
                     <div>
                         <input
                             type='checkbox'
+                            name='regulations'
                             value='accept'
                             id='accept'
                             checked={regulations}
-                            onChange={() => setRegulations(true)}
+                            onChange={handleChange}
                             ref={regRef}
                             required
                         />
@@ -216,10 +227,9 @@ const Form = () => {
                 <Button
                     label={'Send form'}
                     onClick={handleSubmit}
-                    type={'submit'}
                 />
+                {isSuccess && <SentMessage handleClose={handleClose} />}
             </form>
-            {isSuccess && <SentMessage handleClosing={handleClosing} />}
         </div>
     );
 };
